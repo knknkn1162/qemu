@@ -95,13 +95,14 @@ target_ulong riscv_load_firmware(const char *firmware_filename,
 {
     uint64_t firmware_entry, firmware_start, firmware_end;
 
+    // the number of bytes loaded in memory
     if (load_elf(firmware_filename, NULL, NULL, NULL, &firmware_entry,
                  &firmware_start, &firmware_end, 0, EM_RISCV, 1, 0) > 0) {
         return firmware_entry;
     }
 
-    if (load_image_targphys_as(firmware_filename, firmware_load_addr,
-                               ram_size, NULL) > 0) {
+    // rom_add_file
+    if (load_image_targphys_as(firmware_filename, firmware_load_addr, ram_size, NULL) > 0) {
         return firmware_load_addr;
     }
 

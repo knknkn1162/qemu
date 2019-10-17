@@ -1129,6 +1129,7 @@ void machine_run_board_init(MachineState *machine)
         }
     }
 
+    // riscv_virt_board_machine_init
     machine_class->init(machine);
 }
 

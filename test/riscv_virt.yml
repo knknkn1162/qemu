@@ -1,0 +1,30 @@
+# .class_init    = machine_class_init,
+machine_class_init
+  - object_class_property_add_str(oc, "firmware",
+# DEFINE_MACHINE("virt", riscv_virt_board_machine_init)
+type_initialize:
+  # ti = riscv_virt_board_machine_init_typeinfo
+  - ti->class_init(oc=ti->class, data=ti->class_data): riscv_virt_board_machine_init_class_init
+    - MachineClass *mc = MACHINE_CLASS(oc)
+    - riscv_virt_board_machine_init(mc): initfn
+      - mc->desc = "RISC-V VirtIO Board (Privileged ISA v1.10)";
+      - mc->init = riscv_virt_board_init;
+      - mc->max_cpus = 8; /* hardcoded limit in BBL */
+      - mc->default_cpu_type = VIRT_CPU;
+
+DEFINE_MACHINE("virt", riscv_virt_board_machine_init):
+main: @ vl.c
+  - machine_run_board_init((MachineState*)machine=current_machine);:
+    - machine_class->init(machine): riscv_virt_board_init
+      - memory_region_add_subregion(system_memory, memmap[VIRT_DRAM].base, main_mem): add region: 0x8000_0000(VIRT_RAM.size~)
+    # BIOS_FILENAME="opensbi-riscv64-virt-fw_jump.bin"
+    - riscv_find_and_load_firmware(machine, firmware_filename=BIOS_FILENAME, memmap[VIRT_DRAM].base)
+      machine->firmware is NULL, (specify -bios option
+      # - firmware_filename = machine->firmware:
+      # - riscv_load_firmware(firmware_filename, memmap[VIRT_DRAM].base=0x8000_0000)
+        # - load_elf(firmware_filename,..): should 0
+        # - load_image_targphys_as(firmware_filename, 0x8000_0000, ram_size, NULL)
+        #   - rom_add_file_fixed_as(filename, addr=0x8000_0000, -1, as=NULL)
+        #     - rom_add_file(_f=filename, NULL, _a=0x8000_0000, _i=-1, false, NULL, _as=NULL)
+        #       - fd = open(rom->path, O_RDONLY | O_BINARY);
+    - riscv_load_kernel(machine->kernel_filename);

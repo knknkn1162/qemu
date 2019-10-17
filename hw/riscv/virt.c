@@ -393,8 +393,12 @@ static void riscv_virt_board_init(MachineState *machine)
     /* register system main memory (actual RAM) */
     memory_region_init_ram(main_mem, NULL, "riscv_virt_board.ram",
                            machine->ram_size, &error_fatal);
-    memory_region_add_subregion(system_memory, memmap[VIRT_DRAM].base,
-        main_mem);
+    // memory_region_add_subregion_common(mr, offset, subregion);
+    // // subregion->container = mr = system_memory;
+    // // subregion->addr = offset = memmap[VIRT_DRAM].base;
+    // // memory_region_update_container_subregions(subregion=main_mem);
+    // [VIRT_DRAM] =        { 0x80000000,           0x0 }, // <- base, size
+    memory_region_add_subregion(system_memory, memmap[VIRT_DRAM].base, main_mem);
 
     /* create device tree */
     fdt = create_fdt(s, memmap, machine->ram_size, machine->kernel_cmdline);
@@ -405,8 +409,7 @@ static void riscv_virt_board_init(MachineState *machine)
     memory_region_add_subregion(system_memory, memmap[VIRT_MROM].base,
                                 mask_rom);
 
-    riscv_find_and_load_firmware(machine, BIOS_FILENAME,
-                                 memmap[VIRT_DRAM].base);
+    riscv_find_and_load_firmware(machine, BIOS_FILENAME, memmap[VIRT_DRAM].base);
 
     if (machine->kernel_filename) {
         uint64_t kernel_entry = riscv_load_kernel(machine->kernel_filename);

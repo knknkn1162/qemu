@@ -300,6 +300,7 @@ struct MachineState {
     struct NVDIMMState *nvdimms_state;
 };
 
+// riscv_virt_board_machine_init_typeinfo
 #define DEFINE_MACHINE(namestr, machine_initfn) \
     static void machine_initfn##_class_init(ObjectClass *oc, void *data) \
     { \
